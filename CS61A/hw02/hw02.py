@@ -26,7 +26,7 @@ def make_adder(n):
     >>> make_adder(1)(2)
     3
     """
-    return 'YOUR EXPRESSION HERE'
+    return lambda x:x+n;
 
 # Q2
 def product(n, term):
@@ -51,7 +51,10 @@ def product(n, term):
     True
     """
     "*** YOUR CODE HERE ***"
-
+    sum = 1;
+    for i in range(1,n+1):
+        sum = sum*term(i)
+    return sum;
 def factorial(n):
     """Return n factorial for n >= 0 by calling product.
 
@@ -64,6 +67,7 @@ def factorial(n):
     True
     """
     "*** YOUR CODE HERE ***"
+    return product(n,identity);
 
 # Q3
 def accumulate(combiner, base, n, term):
@@ -83,6 +87,10 @@ def accumulate(combiner, base, n, term):
     72
     """
     "*** YOUR CODE HERE ***"
+    result = base;
+    for i in range(1,n+1):
+        result = combiner(result,term(i))
+    return result;
 
 def summation_using_accumulate(n, term):
     """Returns the sum of term(1) + ... + term(n). The implementation
@@ -98,6 +106,7 @@ def summation_using_accumulate(n, term):
     True
     """
     "*** YOUR CODE HERE ***"
+    return accumulate(add,0,n,term);
 
 def product_using_accumulate(n, term):
     """An implementation of product using accumulate.
@@ -112,6 +121,7 @@ def product_using_accumulate(n, term):
     True
     """
     "*** YOUR CODE HERE ***"
+    return accumulate(mul,1,n,term);
 
 
 
@@ -142,7 +152,11 @@ def make_repeater(f, n):
     5
     """
     "*** YOUR CODE HERE ***"
-
+    def fun(x):
+        for i in range(n):
+            x = f(x);   
+        return x;
+    return fun;
 # Q5
 def zero(f):
     return lambda x: x
