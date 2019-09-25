@@ -1,5 +1,5 @@
 HW_SOURCE_FILE = 'hw04.py'
-
+import math;
 ###############
 #  Questions  #
 ###############
@@ -27,6 +27,7 @@ def taxicab(a, b):
     9
     """
     "*** YOUR CODE HERE ***"
+    return abs(street(a) - street(b)) + abs(avenue(a) - avenue(b));
 
 def squares(s):
     """Returns a new list containing square roots of the elements of the
@@ -40,7 +41,11 @@ def squares(s):
     []
     """
     "*** YOUR CODE HERE ***"
-
+    result = [];
+    for i in s:
+        if math.sqrt(i) % 1 == 0:
+            result.append(int(math.sqrt(i)));
+    return result;
 def g(n):
     """Return the value of G(n), computed recursively.
 
@@ -59,6 +64,10 @@ def g(n):
     True
     """
     "*** YOUR CODE HERE ***"
+    if n <= 3:
+        return n;
+    else:
+        return g(n-1) + 2*g(n-2) + 3*g(n-3);
 
 def g_iter(n):
     """Return the value of G(n), computed iteratively.
@@ -78,6 +87,12 @@ def g_iter(n):
     True
     """
     "*** YOUR CODE HERE ***"
+    if n <= 3:
+        return n;
+    result = [1,2,3];
+    for i in range(n-3):
+        result.append(3*result[i] + 2*result[i+1] + result[i+2]);
+    return result[n-1];
 
 def count_change(amount):
     """Return the number of ways to make change for amount.
@@ -95,6 +110,16 @@ def count_change(amount):
     True
     """
     "*** YOUR CODE HERE ***"
+    def func(amount,coin_money):
+        if amount < 0:
+            return 0;
+        if amount == 0:
+            return 1;
+        if coin_money > amount:
+            return 0;
+        return func(amount - coin_money,coin_money) + func(amount,coin_money*2);
+
+    return func(amount,1);
 
 def print_move(origin, destination):
     """Print instructions to move a disk."""
@@ -129,6 +154,14 @@ def move_stack(n, start, end):
     """
     assert 1 <= start <= 3 and 1 <= end <= 3 and start != end, "Bad start/end"
     "*** YOUR CODE HERE ***"
+    if(n == 1):
+        print_move(start,end);
+        return ;
+
+
+    move_stack(n-1,start,6-start-end);
+    move_stack(1,start,end);
+    move_stack(n-1,6-start-end,end);
 
 ###################
 # Extra Questions #
@@ -145,4 +178,4 @@ def make_anonymous_factorial():
     >>> check(HW_SOURCE_FILE, 'make_anonymous_factorial', ['Assign', 'AugAssign', 'FunctionDef', 'Recursion'])
     True
     """
-    return 'YOUR_EXPRESSION_HERE'
+    return lambda n : 1 if n == 1 else n
