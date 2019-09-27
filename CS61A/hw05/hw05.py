@@ -99,6 +99,14 @@ def replace_leaf(t, old, new):
     True
     """
     "*** YOUR CODE HERE ***"
+    if is_leaf(t) == True:
+        if label(t) == old:
+            return tree(new);
+        else:
+            return tree(label(t));
+    else:
+        return tree(label(t),[replace_leaf(b,old,new) for b in branches(t)]);
+    
 
 # Mobiles
 
@@ -145,12 +153,12 @@ def weight(size):
     """Construct a weight of some size."""
     assert size > 0
     "*** YOUR CODE HERE ***"
-
+    return ['weight',size];
 def size(w):
     """Select the size of a weight."""
     assert is_weight(w), 'must call size on a weight'
     "*** YOUR CODE HERE ***"
-
+    return w[1];
 def is_weight(w):
     """Whether w is a weight."""
     return type(w) == list and len(w) == 2 and w[0] == 'weight'
@@ -176,7 +184,7 @@ def total_weight(m):
     9
     """
     if is_weight(m):
-        return size(m)
+        return size(m);
     else:
         assert is_mobile(m), "must get total weight of a mobile or a weight"
         return total_weight(end(left(m))) + total_weight(end(right(m)))
@@ -198,7 +206,21 @@ def balanced(m):
     False
     """
     "*** YOUR CODE HERE ***"
+    left_torque = total_weight(end(left(m)))*length(left(m));
+    right_torque = total_weight(end(right(m)))*length(right(m));
+    if left_torque != right_torque:
+        return False;
 
+
+    if is_mobile(end(left(m))):
+        if not balanced(end(left(m))):
+            return False;
+
+    if is_mobile(end(right(m))):
+        if not balanced(end(right(m))):
+            return False;
+
+    return True;
 def totals_tree(m):
     """Return a tree representing the mobile with its total weight at the root.
 
@@ -225,7 +247,11 @@ def totals_tree(m):
           2
     """
     "*** YOUR CODE HERE ***"
-
+    #构造树的时候，无论是不是叶子，都要用tree
+    if is_weight(m):
+        return tree(total_weight(m));
+    else:
+        return tree(total_weight(m),[totals_tree(i) for i in [end(left(m)),end(right(m))]])
 # Mutable functions in Python
 
 def make_counter():
@@ -249,6 +275,17 @@ def make_counter():
     5
     """
     "*** YOUR CODE HERE ***"
+    dic = {};
+    def counter(x):
+        if x not in dic:
+            dic[x] = 1;
+        else:
+            dic[x] = dic[x] + 1;
+        return dic[x];
+
+
+
+    return counter;
 
 def make_fib():
     """Returns a function that returns the next Fibonacci number
@@ -270,6 +307,29 @@ def make_fib():
     12
     """
     "*** YOUR CODE HERE ***"
+
+
+    count = 0;
+    fib_list = [];
+    def fib():
+        nonlocal count;
+        #nonlocal fib;
+        if count == 0:
+            fib_list.append(0);
+            count = count + 1;
+            return 0;
+        elif count == 1:
+            fib_list.append(1);
+            count = count + 1;
+            return 1;
+        else:
+            result = fib_list[count - 1] + fib_list[count -2];
+            fib_list.append(result);
+            count = count + 1;
+            return result;
+
+
+    return fib;
 
 def make_withdraw(balance, password):
     """Return a password-protected withdraw function.
@@ -300,7 +360,25 @@ def make_withdraw(balance, password):
     True
     """
     "*** YOUR CODE HERE ***"
-
+    lst = [];
+    def withdraw(mon,pswd):
+        nonlocal balance;
+        nonlocal lst;
+        if len(lst) >= 3:
+            return "Your account is locked. Attempts: " + str(lst);
+        if pswd == password:
+            if mon <= balance:
+                balance -= mon;
+                return balance;
+            else:
+                return 'Insufficient funds';
+        else:
+            lst += [pswd];
+            return 'Incorrect password';    
+        
+    
+    
+    return withdraw;
 def make_joint(withdraw, old_password, new_password):
     """Return a password-protected withdraw function that has joint access to
     the balance of withdraw.
@@ -340,6 +418,19 @@ def make_joint(withdraw, old_password, new_password):
     "Your account is locked. Attempts: ['my', 'secret', 'password']"
     """
     "*** YOUR CODE HERE ***"
+    password_list = [];
+    response = withdraw(0,old_password);
+    if type(response)==str:
+        return response;
+    else:
+        password_list = [old_password,new_password];
+
+    def joint(mon,pswd):
+        if pswd in password_list:
+            return withdraw(mon,password_list[0]);
+        else:
+            return withdraw(mon,pswd);
+    return joint;
 
 # Generators
 
@@ -378,7 +469,18 @@ def generate_paths(t, x):
     [[0, 2], [0, 2, 1, 2]]
     """
     "*** YOUR CODE HERE ***"
-
+    result_lst = [];
+    def helper(t,x,lst):
+        if label(t) == x:
+            result_lst.append(lst);
+        if is_leaf(t):
+            return;
+        for b in branches(t):
+            helper(b,x,lst+[label(b)]);
+        return result_lst;
+            
+    
+    return iter(helper(t,x,[label(t)]));
 ###################
 # Extra Questions #
 ###################
@@ -401,30 +503,35 @@ def interval(a, b):
 def lower_bound(x):
     """Return the lower bound of interval x."""
     "*** YOUR CODE HERE ***"
+    return x[0];
 
 def upper_bound(x):
     """Return the upper bound of interval x."""
     "*** YOUR CODE HERE ***"
+    return x[1];
 
 def mul_interval(x, y):
     """Return the interval that contains the product of any value in x and any
     value in y."""
-    p1 = x[0] * y[0]
-    p2 = x[0] * y[1]
-    p3 = x[1] * y[0]
-    p4 = x[1] * y[1]
-    return [min(p1, p2, p3, p4), max(p1, p2, p3, p4)]
+    p1 = lower_bound(x) * lower_bound(y);
+    p2 = lower_bound(x) * upper_bound(y);
+
+    p3 = upper_bound(x) * lower_bound(y);
+    p4 = upper_bound(x) * upper_bound(y);
+    return interval(min(p1, p2, p3, p4), max(p1, p2, p3, p4));
 
 def sub_interval(x, y):
     """Return the interval that contains the difference between any value in x
     and any value in y."""
     "*** YOUR CODE HERE ***"
+    return interval(lower_bound(x) - upper_bound(y), upper_bound(x) - lower_bound(y));
 
 def div_interval(x, y):
     """Return the interval that contains the quotient of any value in x divided by
     any value in y. Division is implemented as the multiplication of x by the
     reciprocal of y."""
     "*** YOUR CODE HERE ***"
+    assert lower_bound(y) > 0  or upper_bound(y) < 0;
     reciprocal_y = interval(1/upper_bound(y), 1/lower_bound(y))
     return mul_interval(x, reciprocal_y)
 
@@ -446,7 +553,7 @@ def check_par():
     >>> lower_bound(x) != lower_bound(y) or upper_bound(x) != upper_bound(y)
     True
     """
-    r1 = interval(1, 1) # Replace this line!
+    r1 = interval(1/2, 1) # Replace this line!
     r2 = interval(1, 1) # Replace this line!
     return r1, r2
 
@@ -463,3 +570,13 @@ def quadratic(x, a, b, c):
     '0 to 10'
     """
     "*** YOUR CODE HERE ***"
+
+    point = -b/2/a;
+    left = a*(lower_bound(x)**2) + b*lower_bound(x) + c;
+    mid = a*(point ** 2) + b*point + c;
+    right = a*(upper_bound(x)**2) + b*upper_bound(x) + c;
+    if point > lower_bound(x) and point < upper_bound(x):
+        return interval(min(left,mid,right),max(left,mid,right));
+    else:
+        return interval(min(left,right),max(left,right));
+    return interval(min())
