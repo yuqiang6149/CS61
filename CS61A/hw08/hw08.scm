@@ -1,8 +1,22 @@
 (define (reverse lst)
     'YOUR-CODE-HERE
-)
+    (if (null? lst)     	
+      	()
+	
+	 (append (reverse (cdr lst)) (cons (car lst) nil))
+))
 (define (longest-increasing-subsequence lst)
     'YOUR-CODE-HERE
+	
+    (if (< (length lst) 2)
+      	lst
+      	(if (< (car lst) (cadr lst))
+
+		(cons (car lst) (longest-increasing-subsequence (filter (lambda (x) (> x (car lst))) lst)))
+		(longest-increasing-subsequence (cdr lst))
+	)
+      )
+      
 )
 
 (define (cadr s) (car (cdr s)))
@@ -52,10 +66,15 @@
 
 (define (derive-sum expr var)
   'YOUR-CODE-HERE
+
+  (+ (derive (addend expr) var) (derive (augend expr) var))
 )
 
 (define (derive-product expr var)
   'YOUR-CODE-HERE
+
+
+  (make-sum (make-product (multiplier expr) (derive (multiplicand expr) var)) (make-product  (derive (multiplier expr) var) (multiplicand expr)))
 )
 
 ; Exponentiations are represented as lists that start with ^.
@@ -65,14 +84,17 @@
 
 (define (base exp)
   'YOUR-CODE-HERE
+  (cadr exp)
 )
 
 (define (exponent exp)
   'YOUR-CODE-HERE
+  (caddr exp)
 )
 
 (define (exp? exp)
   'YOUR-CODE-HERE
+  (and (list? x) (eq? (car x) '^))
 )
 
 (define x^2 (make-exp 'x 2))
@@ -80,4 +102,5 @@
 
 (define (derive-exp exp var)
   'YOUR-CODE-HERE
+
 )
